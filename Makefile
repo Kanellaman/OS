@@ -4,21 +4,21 @@ CC=gcc
 #.cpp files
 Files=main.c functions.c
 #.o Files
-OBJS=main.o functions.o
+OBJS=main.o functions.o 
 
 #Executable
 EXEC=exe
 
 #Parameters for run
-ARGS= em.txt 3 12 12 6
+ARGS= text.txt 5 100 3
 
 #input file
 INPUT= 
 
 #Create executable
-$(EXEC):$(OBJS)
+$(EXEC):$(OBJS) execchild.c
 	$(CC) $(OBJS) -o $(EXEC)
-
+	$(CC) -o execchild execchild.c -lpthread -lrt
 #Run
 run: $(EXEC)
 	./$(EXEC) $(ARGS) $(INPUT)

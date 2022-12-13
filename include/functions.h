@@ -13,16 +13,16 @@
 #include <sys/mman.h>
 #define SEGMENTSIZE 1024
 #define SEGMENTPERM 0666
-#define seg 64000
-#define ROWLENGTH 100
+#define seg 640000
+#define ROWLENGTH 1000
 #define ROWNUMBER 200
 
 struct memory
 {
     int total_segs, lines_segm, last_line;
     int segm, line;
-    int test;
-    char **ptr;
+    int requests;
+    char *ptr;
 };
 typedef struct memory *mem;
 

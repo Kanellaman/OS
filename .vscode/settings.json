@@ -4,6 +4,8 @@
     "wait.h": "c",
     "functions.h": "c",
     "stdlib.h": "c",
-    "my_rand.h": "c"
+    "my_rand.h": "c",
+    "string.h": "c",
+    "stat.h": "c"
   }
 }

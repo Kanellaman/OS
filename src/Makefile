@@ -10,7 +10,7 @@ OBJS2=../modules/execchild.o ../modules/functions.o
 EXEC1=exe
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 5 10 3
+ARGS= text.txt 1 10 3
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)
@@ -19,7 +19,7 @@ $(EXEC1):$(OBJS1) $(OBJS2)
 
 #Run
 run: $(EXEC1) $(EXEC2)
-	./$(EXEC1) $(ARGS) $(INPUT)
+	./$(EXEC1) $(ARGS) $(INPUT) > em.txt
 
 #debug
 #debug: 

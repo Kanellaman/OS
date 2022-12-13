@@ -1,2 +1,2 @@
 This is the output file of Child process 4
-asddfasd 1.004536
+asddfasd 0.006721

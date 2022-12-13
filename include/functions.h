@@ -22,8 +22,10 @@ struct memory
     int total_segs, lines_segm, last_line;
     int segm, line;
     int requests;
-    char *ptr;
+    sem_t sp1,sp2;
 };
 typedef struct memory *mem;
 
 int get_key(int, int);
+char *read_file(FILE *fp);
+int lines_per(int segm, int count);

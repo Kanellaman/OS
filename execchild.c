@@ -4,7 +4,7 @@
 int main(int argc, char **argv, char **envp)
 {
     FILE *fp;
-    int err, retval, id, x;
+    int shm_id1 = get_key(0, 0), err, retval, id, x;
     int *seed = malloc(sizeof(int));
     double start1, end1;
     double start2, end2;
@@ -13,6 +13,7 @@ int main(int argc, char **argv, char **envp)
         perror("Need more arguments");
         return EXIT_FAILURE;
     }
+
     id = atoi(argv[1]);
     *seed = id;
     x = rand_r(seed);
@@ -24,13 +25,29 @@ int main(int argc, char **argv, char **envp)
     fp = fopen(filename, "w");
     fprintf(fp, "This is the output file of Child process %d\n", atoi(argv[1]));
 
-    int shm_id = get_key(0, 0);
     mem k;
-    k = (mem)shmat(shm_id, NULL, 0);
-    sem_t *sp = (sem_t *)k + sizeof(struct memory);
-    char *str = (char *)sp + k->total_segs * sizeof(sem_t);
-    // printf("%s", str);
-    // GET_TIME(start1);
+    sem_t *sp;
+
+    k = (mem)shmat(shm_id1, NULL, 0);
+    if (k == (mem)-1)
+    {
+        perror("1Error attaching shared memory segment");
+        return EXIT_FAILURE;
+    }
+    sp = (sem_t *)k + sizeof(struct memory);
+    if (sp == (sem_t *)-1)
+    {
+        perror("Error attaching shared memory segment");
+        return EXIT_FAILURE;
+    }
+    k->ptr = (char *)sp + sizeof(sem_t *);
+    if (k->ptr == (char *)-1)
+    {
+        perror("Error attaching shared memory segment");
+        return EXIT_FAILURE;
+    }
+
+    GET_TIME(start1);
 
     // for (int i = 0; i < k->requests; ++i)
     // {
@@ -44,9 +61,9 @@ int main(int argc, char **argv, char **envp)
     //     sem_post(sp);
     // }
     // printf("%s",k->ptr);
-    // GET_TIME(end1);
-    // int j = 0;
-    // int last, segm = 4, row = 2;
+    GET_TIME(end1);
+    int j = 0;
+    int last, segm = 4, row = 2;
     x = id;
     sem_wait(&(k->sp1));
     if (k->segm == -1)
@@ -55,23 +72,22 @@ int main(int argc, char **argv, char **envp)
         sem_post(&(k->sp2));
         sem_post(&(k->sp1));
         sem_wait(&sp[k->segm]);
-        printf("%s %d\n", str, k->segm);
-        exit(0);
     }
     else if (k->segm != -1)
     {
+        sem_post(&(k->sp1));
         sem_wait(&sp[k->segm]);
     }
-    // printf("asdfasdf");exit(0);
-    // k->line = 4;
-    // printf("NAIP\n");
-    // fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
-    // fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
-    // fprintf(fp, "<%d,%d> ", segm, row);
-    // if (k->segm == k->total_segs)
-    //     last = k->last_line;
-    // else
-    //     last = k->lines_segm;
+    printf("asdfasdf");exit(0);
+    k->line = 4;
+    printf("NAIP\n");
+    fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
+    fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
+    fprintf(fp, "<%d,%d> ", segm, row);
+    if (k->segm == k->total_segs)
+        last = k->last_line;
+    else
+        last = k->lines_segm;
     // for (int i = 0; i < last; ++i)
     // {
     //     while (k->ptr[j] != '\n')
@@ -84,6 +100,13 @@ int main(int argc, char **argv, char **envp)
     //         fprintf(fp, "%c", k->ptr[j]);
     //     j++;
     // }
+    // sleep(3);
     printf("Process id %d\n", id);
+    // else{
+    //     if(k->segm!=x)
+    //         sem_wait(sp);
+    // }
+    // sem_post(sp);
+    // printf("%d", k->lines_segm);
     return EXIT_SUCCESS;
 }

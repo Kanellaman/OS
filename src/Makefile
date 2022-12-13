@@ -7,7 +7,7 @@ Files=main.c ../modules/functions.c ../modules/execchild.c ../modules/my_rand.c
 OBJS1=main.o ../modules/functions.o 
 OBJS2=../modules/execchild.o ../modules/functions.o 
 #Executable
-EXEC1=exe
+EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
 ARGS= text.txt 1 10 3
@@ -19,15 +19,16 @@ $(EXEC1):$(OBJS1) $(OBJS2)
 
 #Run
 run: $(EXEC1) $(EXEC2)
-	./$(EXEC1) $(ARGS) $(INPUT) > em.txt
+	./$(EXEC1) $(ARGS) $(INPUT)
 
 #debug
-#debug: 
+debug: 
+	$(CC) -o exe segmm.c -lpthread -lrt
 #	$(CC) -g3 $(Files) -o $(EXEC) 
 #	gdb -q $(EXEC)
 
 #memory-loss
-#memory:
+# memory:
 #	make
 #	valgrind --leak-check=full -s ./$(EXEC) $(ARGS) $(INPUT)
 #--leak-check=full \

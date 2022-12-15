@@ -64,7 +64,6 @@ int main(int argc, char **argv, char **envp)
         else
         {
             waits(&(k->ssp));
-            // return EXIT_SUCCESS;
         }
     }
     waits(&(sp[x]));

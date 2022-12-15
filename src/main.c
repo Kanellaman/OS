@@ -60,13 +60,12 @@ int main(int argc, char *argv[])
     k->total = 0;
     k->N = N;
     k->requests = requests;
+    
     smphr sp = (smphr)k + sizeof(struct memory);
     for (int i = 0; i < segm; i++)
-    {
         init(&sp[i]);
-    }
-    char *str = (char *)sp + segm * sizeof(struct semaphore);
 
+    char *str = (char *)sp + segm * sizeof(struct semaphore);
     strcpy(str, "\0");
     char *newargv[3] = {"yo", file_data, NULL};
     for (int i = 0; i < N; i++)
@@ -82,6 +81,7 @@ int main(int argc, char *argv[])
             (void)execv("execchild", newargv);
         }
     }
+
     int j = 0;
     while (j != 4)
     {

@@ -4,7 +4,7 @@
 int main(int argc, char **argv, char **envp)
 {
     FILE *fp;
-    int err, retval, id, x;
+    int err, retval, id, x, N;
     int *seed = malloc(sizeof(int));
     double start1, end1;
     double start2, end2;
@@ -13,6 +13,7 @@ int main(int argc, char **argv, char **envp)
         perror("Need more arguments");
         return EXIT_FAILURE;
     }
+    N = atoi(argv[0]);
     id = atoi(argv[1]);
     *seed = id;
     x = rand_r(seed);
@@ -25,65 +26,90 @@ int main(int argc, char **argv, char **envp)
     fprintf(fp, "This is the output file of Child process %d\n", atoi(argv[1]));
 
     int shm_id = get_key(0, 0);
+
     mem k;
     k = (mem)shmat(shm_id, NULL, 0);
-    sem_t *sp = (sem_t *)k + sizeof(struct memory);
-    char *str = (char *)sp + k->total_segs * sizeof(sem_t);
-    // printf("%s", str);
-    // GET_TIME(start1);
+    smphr sp = (smphr)k + sizeof(struct memory);
+    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
 
-    // for (int i = 0; i < k->requests; ++i)
-    // {
-    //     sem_wait(sp);
-    //     if (k->segm == -1 && k->line == -1)
-    //     {
-    //         // sleep(1);
-    //         x = rand_r(seed) % k->total_segs;
-    //         printf("Sending request from %d %d\n", id, x);
-    //     }
-    //     sem_post(sp);
-    // }
-    // printf("%s",k->ptr);
-    // GET_TIME(end1);
-    // int j = 0;
-    // int last, segm = 4, row = 2;
-    x = id;
-    sem_wait(&(k->sp1));
-    if (k->segm == -1)
+    int j = 0, line = 0, last;
+    x = id % 4;
+    while (1)
     {
-        k->segm = x;
-        sem_post(&(k->sp2));
-        sem_post(&(k->sp1));
-        sem_wait(&sp[k->segm]);
-        printf("%s %d\n", str, k->segm);
-        exit(0);
+        int sum = 0;
+        sem_wait(&(sp[x].mutex));
+        sp[x].num++;
+        sem_post(&(sp[x].mutex));
+        for (int i = 0; i < k->total_segs; i++)
+        {
+            sum += sp[i].num;
+        }
+        printf("%d SUM\n", sum);
+        if (sum == k->N)
+            sem_post(&(k->sp2));
+
+        waits(&(k->sp));
+        if (k->segm == -1)
+        {
+            k->segm = x;
+            sem_post(&(k->sp2));
+            for (int i = 0; i < k->N - 1; i++)
+                post(&(k->sp));
+            break;
+        }
+        else if (k->segm == x)
+        {
+            break;
+        }
+        else
+        {
+            waits(&(k->ssp));
+            // return EXIT_SUCCESS;
+        }
     }
-    else if (k->segm != -1)
+    waits(&(sp[x]));
+    post(&(sp[x]));
+
+    if (1)
     {
-        sem_wait(&sp[k->segm]);
+        fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
+        fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
+        fprintf(fp, "<%d,%d> ", x, line);
+        if (k->segm == k->total_segs)
+            last = k->last_line;
+        else
+            last = k->lines_segm;
+        for (int i = 0; i < last; ++i)
+        {
+            while (str[j] != '\n')
+            {
+                if (i == line)
+                    fprintf(fp, "%c", str[j]);
+                j++;
+            }
+            if (i == line)
+                fprintf(fp, "%c", str[j]);
+            j++;
+        }
+        usleep(20000);
     }
-    // printf("asdfasdf");exit(0);
-    // k->line = 4;
-    // printf("NAIP\n");
-    // fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
-    // fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
-    // fprintf(fp, "<%d,%d> ", segm, row);
-    // if (k->segm == k->total_segs)
-    //     last = k->last_line;
-    // else
-    //     last = k->lines_segm;
-    // for (int i = 0; i < last; ++i)
-    // {
-    //     while (k->ptr[j] != '\n')
-    //     {
-    //         if (i == k->line)
-    //             fprintf(fp, "%c", k->ptr[j]);
-    //         j++;
-    //     }
-    //     if (i == k->line)
-    //         fprintf(fp, "%c", k->ptr[j]);
-    //     j++;
-    // }
-    printf("Process id %d\n", id);
+
+    sem_wait(&(sp[x].mutex));
+    sp[x].num--;
+    k->N--;
+    k->total++;
+    printf("SP[X=%d] NUM=%d\n", x, sp[x].num);
+    if (sp[x].num == 0)
+    {
+        k->segm = -1;
+        strcpy(str, "\0");
+        for (int i = 0; i < k->total_segs; i++)
+            sp[i].num = 0;
+        while (k->ssp.i < 0)
+            post(&(k->ssp));
+    }
+    sem_post(&(sp[x].mutex));
+
+    printf("Process id %d %d\n", id, x);
     return EXIT_SUCCESS;
 }

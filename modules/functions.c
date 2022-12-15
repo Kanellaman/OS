@@ -4,8 +4,8 @@ int get_key(int i, int size)
 {
     int shm_id;
     key_t key;
-    key = ftok("shared_spac", 60);
-    shm_id = shmget(key, seg*sizeof(char) + sizeof(struct memory), SEGMENTPERM | IPC_CREAT);
+    key = ftok("sha", 60);
+    shm_id = shmget(key, seg * sizeof(char) + sizeof(struct memory) + 20 * sizeof(struct semaphore), SEGMENTPERM | IPC_CREAT);
     if (shm_id == -1)
     {
         perror("shmget1");
@@ -30,4 +30,47 @@ int lines_per(int segm, int count)
         return count / segm;
     lines += segm;
     return lines;
+}
+
+void init(smphr sp)
+{
+    sem_init(&(sp->sp), 1, 0);
+    sem_init(&(sp->mutex), 1, 1);
+    sp->i = 0;
+    sp->num = 0;
+}
+
+void post(smphr sp)
+{
+    sem_wait(&(sp->mutex));
+    (sp->i)++;
+    sem_post(&(sp->mutex));
+    sem_post(&(sp->sp));
+}
+
+void waits(smphr sp)
+{
+    sem_wait(&(sp->mutex));
+    (sp->i)--;
+    sem_post(&(sp->mutex));
+    sem_wait(&(sp->sp));
+}
+
+int check(smphr sp, int segm)
+{
+    int sum = 0;
+    for (int j = 0; j < segm; j++)
+    {
+        sem_wait(&(sp[j].mutex));
+        sum += sp[j].i;
+        sem_post(&(sp[j].mutex));
+    }
+    return sum;
+}
+
+void waiting(smphr sp)
+{
+    sem_wait(&(sp->mutex));
+    sp->num++;
+    sem_post(&(sp->mutex));
 }

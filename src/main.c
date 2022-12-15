@@ -9,8 +9,6 @@ int main(int argc, char *argv[])
     int pid, status;
     double start, end;
     FILE *fp;
-    key_t key;
-    key = ftok("shared_spac", 65);
     if (argc < 3)
         return EXIT_FAILURE;
     fp = fopen(argv[1], "r");
@@ -33,6 +31,7 @@ int main(int argc, char *argv[])
     char **array;
     array = malloc(count * sizeof(char *));
 
+    int num, first, last;
     size_t size_segm = 0, size_sem = 0; // The bytes stored in the 2D array
     // which represents the number of bytes the document has
 
@@ -52,53 +51,71 @@ int main(int argc, char *argv[])
     k->last_line = k->lines_segm - k->lines_segm * segm % count;
     sem_init(&(k->sp1), 1, 0);
     sem_init(&(k->sp2), 1, 0);
+    sem_init(&(k->next), 1, 0);
+    sem_init(&(k->mutex), 1, 1);
+    init(&(k->sp));
+    init(&(k->ssp));
     k->segm = -1;
     k->line = -1;
+    k->total = 0;
+    k->N = N;
     k->requests = requests;
-
-    sem_t *sp = (sem_t *)k + sizeof(struct memory);
+    smphr sp = (smphr)k + sizeof(struct memory);
     for (int i = 0; i < segm; i++)
     {
-        sem_init(&sp[i], 1, 0);
+        init(&sp[i]);
     }
+    char *str = (char *)sp + segm * sizeof(struct semaphore);
 
-    char *str = (char *)sp + segm * sizeof(sem_t);
-
+    strcpy(str, "\0");
     char *newargv[3] = {"yo", file_data, NULL};
     for (int i = 0; i < N; i++)
     {
         pid = fork();
         if (pid == 0)
         {
-            char c[8];
-            sprintf(c, "%d", i);
-            newargv[1] = c;
+            char c1[8], c2[8];
+            sprintf(c1, "%d", N);
+            newargv[0] = c1;
+            sprintf(c2, "%d", i);
+            newargv[1] = c2;
             (void)execv("execchild", newargv);
         }
     }
-    sem_post(&(k->sp1));
-    sem_wait(&(k->sp2));
+    int j = 0;
+    while (j != 4)
+    {
+        sem_wait(&(k->sp2));
+        post(&(k->sp));
+        sem_wait(&(k->sp2));
+        num = k->segm;
+        printf("num=%d\n", num);
+        first = num * k->lines_segm;
+        if (num == segm)
+            last = num * k->lines_segm + k->last_line;
+        else
+            last = (num + 1) * k->lines_segm;
+        for (int i = first; i < last; i++)
+            strcat(str, array[i]);
 
-    int num = k->segm, first = num * k->lines_segm, last;
-    if (num == segm - 1)
-        last = num * k->lines_segm + k->last_line;
-    else
-        last = (num + 1) * k->lines_segm;
-    for (int i = first; i < last; i++)
-        strcat(str, array[i]);
-    // printf("%s %d\n", str, k->segm);
-    sem_post(&sp[k->segm]);
+        post(&(sp[k->segm]));
+
+        // waits(&(sp[k->segm]));
+        j++;
+    }
+
+
     for (int j = 0; j < N; j++)
     {
         int i = wait(NULL);
         printf("Wait returned %d\n", i);
     }
 
-    // if (shmdt(k) == -1)
-    // {
-    //     perror("shmdt");
-    //     return 1;
-    // }
+    if (shmdt(k) == -1)
+    {
+        perror("shmdt");
+        return 1;
+    }
     if (shmctl(shm_id, IPC_RMID, NULL) == -1)
     {
         perror("shmctl1");

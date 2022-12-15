@@ -35,6 +35,7 @@ int lines_per(int segm, int count)
 void init(smphr sp)
 {
     sem_init(&(sp->sp), 1, 0);
+    sem_init(&(sp->mutex1), 1, 1);
     sem_init(&(sp->mutex), 1, 1);
     sp->i = 0;
     sp->num = 0;
@@ -42,17 +43,17 @@ void init(smphr sp)
 
 void post(smphr sp)
 {
-    sem_wait(&(sp->mutex));
+    sem_wait(&(sp->mutex1));
     (sp->i)++;
-    sem_post(&(sp->mutex));
+    sem_post(&(sp->mutex1));
     sem_post(&(sp->sp));
 }
 
 void waits(smphr sp)
 {
-    sem_wait(&(sp->mutex));
+    sem_wait(&(sp->mutex1));
     (sp->i)--;
-    sem_post(&(sp->mutex));
+    sem_post(&(sp->mutex1));
     sem_wait(&(sp->sp));
 }
 
@@ -70,7 +71,7 @@ int check(smphr sp, int segm)
 
 void waiting(smphr sp)
 {
-    sem_wait(&(sp->mutex));
+    sem_wait(&(sp->mutex1));
     sp->num++;
-    sem_post(&(sp->mutex));
+    sem_post(&(sp->mutex1));
 }

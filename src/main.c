@@ -59,8 +59,9 @@ int main(int argc, char *argv[])
     k->line = -1;
     k->total = 0;
     k->N = N;
+    k->count = 1;
     k->requests = requests;
-    
+
     smphr sp = (smphr)k + sizeof(struct memory);
     for (int i = 0; i < segm; i++)
         init(&sp[i]);
@@ -83,13 +84,12 @@ int main(int argc, char *argv[])
     }
 
     int j = 0;
-    while (j != 4)
+    while (1)
     {
         sem_wait(&(k->sp2));
         post(&(k->sp));
         sem_wait(&(k->sp2));
         num = k->segm;
-        printf("num=%d\n", num);
         first = num * k->lines_segm;
         if (num == segm)
             last = num * k->lines_segm + k->last_line;
@@ -100,10 +100,10 @@ int main(int argc, char *argv[])
 
         post(&(sp[k->segm]));
 
-        // waits(&(sp[k->segm]));
-        j++;
+        sem_wait(&(k->sp2));
+        if (k->count == 0)
+            break;
     }
-
 
     for (int j = 0; j < N; j++)
     {

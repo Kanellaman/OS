@@ -4,13 +4,13 @@ CC=gcc
 #.cpp files
 Files=main.c ../modules/functions.c ../modules/execchild.c ../modules/my_rand.c
 #.o Files
-OBJS1=main.o ../modules/functions.o 
-OBJS2=../modules/execchild.o ../modules/functions.o 
+OBJS1=main.o ../modules/functions.o
+OBJS2=../modules/execchild.o ../modules/functions.o
 #Executable
 EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 6 10 3
+ARGS= text.txt 10 10 1
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)
@@ -22,9 +22,9 @@ run: $(EXEC1) $(EXEC2)
 	./$(EXEC1) $(ARGS) $(INPUT) > em.txt
 
 #debug
-debug: 
+debug:
 	$(CC) -o exe segmm.c -lpthread -lrt
-#	$(CC) -g3 $(Files) -o $(EXEC) 
+#	$(CC) -g3 $(Files) -o $(EXEC)
 #	gdb -q $(EXEC)
 
 #memory-loss
@@ -41,4 +41,4 @@ https://stackoverflow.com/questions/5134891/how-do-i-use-valgrind-to-find-memory
 
 #Clear
 clean:
-	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2) 
+	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2)

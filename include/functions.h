@@ -20,7 +20,7 @@
 struct semaphore
 {
     sem_t sp;
-    sem_t mutex;
+    sem_t mutex, mutex1;
     int i, num;
 };
 struct memory
@@ -29,7 +29,7 @@ struct memory
     int segm, line;
     int requests;
     int waiting;
-    int total, N;
+    int total, N, count;
     sem_t sp1, sp2, next, mutex;
     struct semaphore sp, ssp;
 };

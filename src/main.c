@@ -91,17 +91,16 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         num = k->segm;
         first = num * k->lines_segm;
-        if (num == segm)
+        if (num == segm - 1)
             last = num * k->lines_segm + k->last_line;
         else
             last = (num + 1) * k->lines_segm;
         for (int i = first; i < last; i++)
             strcat(str, array[i]);
         sem_post(&(k->sp1));
-        
+
         sem_wait(&(k->sp2));
     }
-
     for (int j = 0; j < N; j++)
     {
         int i = wait(NULL);

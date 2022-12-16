@@ -10,7 +10,7 @@ OBJS2=../modules/execchild.o ../modules/functions.o
 EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 3 10 4
+ARGS= text.txt 6 4 3
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)
@@ -23,9 +23,10 @@ run: $(EXEC1) $(EXEC2)
 
 #debug
 debug:
-	$(CC) -o exe segmm.c -lpthread -lrt
-#	$(CC) -g3 $(Files) -o $(EXEC)
-#	gdb -q $(EXEC)
+# $(CC) -o exe segmm.c -lpthread -lrt
+	$(CC) -g3 $(OBJS1) -o $(EXEC1) -lpthread -lrt
+	$(CC) -g3 $(OBJS2) -o $(EXEC2) -lpthread -lrt
+	gdb -q $(EXEC1)
 
 #memory-loss
 # memory:

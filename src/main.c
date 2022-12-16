@@ -52,9 +52,6 @@ int main(int argc, char *argv[])
     sem_init(&(k->sp1), 1, 0);
     sem_init(&(k->sp2), 1, 0);
     sem_init(&(k->next), 1, 0);
-    sem_init(&(k->mutex), 1, 1);
-    init(&(k->sp));
-    init(&(k->ssp));
     k->segm = -1;
     k->line = -1;
     k->total = 0;

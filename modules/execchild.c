@@ -42,6 +42,7 @@ int main(int argc, char **argv, char **envp)
             if (random < probability)
                 x = rand_r(seed) % k->total_segs;
         }
+        GET_TIME(start1);
         int j = 0, line = 0, last;
         sem_wait(&(sp[x].mutex));
         sp[x].num++;
@@ -52,18 +53,23 @@ int main(int argc, char **argv, char **envp)
 
             k->segm = x;
             sem_post(&(k->sp2));
+            GET_TIME(end1);
+            GET_TIME(start2);
             sem_wait(&(k->sp1));
             post(&sp[x]);
         }
         else
         {
             sem_post(&(sp[x].mutex));
+            GET_TIME(end1);
+            GET_TIME(start2);
             waits(&sp[x]);
             post(&sp[x]);
         }
 
         if (1)
         {
+            GET_TIME(end2);
             fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
             fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
             fprintf(fp, "<%d,%d> ", x, line);

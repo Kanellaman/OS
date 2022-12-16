@@ -30,8 +30,7 @@ struct memory
     int requests;
     int waiting;
     int total, N, count;
-    sem_t sp1, sp2, next, mutex;
-    struct semaphore sp, ssp;
+    sem_t sp1, sp2, next;
 };
 
 typedef struct memory *mem;

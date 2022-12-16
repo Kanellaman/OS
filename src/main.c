@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         post(&(k->sp));
         sem_wait(&(k->sp2));
-        // strcpy(str, "\0");
+        strcpy(str, "\0");
         num = k->segm;
         first = num * k->lines_segm;
         if (num == segm)

@@ -1,0 +1,4 @@
+This is the output file of Child process 1
+Time for the request to be submitted -0.000000
+Time for the the answer to come back 0.000000
+<1,0> The “Third Address to the International Workingmen’s Association” is included because in this

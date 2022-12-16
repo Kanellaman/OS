@@ -1,6 +1,0 @@
-Process id 0 0
-Process id 2 0
-Process id 1 1
-Wait returned 5749
-Wait returned 5751
-Wait returned 5750

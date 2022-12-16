@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     char c;
     int N, requests, segm;
     int pid, status;
-    double start, end;
+    double start1, end1, start2, end2;
     FILE *fp;
     if (argc < 3)
         return EXIT_FAILURE;
@@ -80,11 +80,12 @@ int main(int argc, char *argv[])
     }
 
     int j = 0;
+    strcpy(str, "\0");
+    k->segm = -1;
     while (k->total != N * requests)
     {
-        k->segm = -1;
-        strcpy(str, "\0");
         sem_post(&(k->next));
+        GET_TIME(start1);
         sem_wait(&(k->sp2));
         num = k->segm;
         first = num * k->lines_segm;
@@ -94,15 +95,19 @@ int main(int argc, char *argv[])
             last = (num + 1) * k->lines_segm;
         for (int i = first; i < last; i++)
             strcat(str, array[i]);
+        GET_TIME(end1);
+        GET_TIME(start2);
         sem_post(&(k->sp1));
 
         sem_wait(&(k->sp2));
+        GET_TIME(end2);
+        strcpy(str, "\0");
+        printf("Segment %d Insert time= %f and exit time= %f\n", k->segm, end1 - start1, end2 - start2);
+        k->segm = -1;
     }
+
     for (int j = 0; j < N; j++)
-    {
-        int i = wait(NULL);
-        printf("Wait returned %d\n", i);
-    }
+        wait(NULL);
 
     if (shmdt(k) == -1)
     {

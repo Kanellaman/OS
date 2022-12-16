@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
         init(&sp[i]);
 
     char *str = (char *)sp + segm * sizeof(struct semaphore);
-    strcpy(str, "\0");
     char *newargv[3] = {"yo", file_data, NULL};
     for (int i = 0; i < N; i++)
     {
@@ -84,12 +83,12 @@ int main(int argc, char *argv[])
     }
 
     int j = 0;
-    while (1)
+    while (k->total != N * requests)
     {
-        sem_wait(&(k->sp2));
-        post(&(k->sp));
-        sem_wait(&(k->sp2));
+        k->segm = -1;
         strcpy(str, "\0");
+        sem_post(&(k->next));
+        sem_wait(&(k->sp2));
         num = k->segm;
         first = num * k->lines_segm;
         if (num == segm)
@@ -98,12 +97,9 @@ int main(int argc, char *argv[])
             last = (num + 1) * k->lines_segm;
         for (int i = first; i < last; i++)
             strcat(str, array[i]);
-
-        post(&(sp[k->segm]));
-
+        sem_post(&(k->sp1));
+        
         sem_wait(&(k->sp2));
-        if (k->total == N * requests)
-            break;
     }
 
     for (int j = 0; j < N; j++)

@@ -44,7 +44,7 @@ void init(smphr sp)
 void post(smphr sp)
 {
     sem_wait(&(sp->mutex1));
-    (sp->i)++;
+    (sp->i)--;
     sem_post(&(sp->mutex1));
     sem_post(&(sp->sp));
 }
@@ -52,7 +52,7 @@ void post(smphr sp)
 void waits(smphr sp)
 {
     sem_wait(&(sp->mutex1));
-    (sp->i)--;
+    (sp->i)++;
     sem_post(&(sp->mutex1));
     sem_wait(&(sp->sp));
 }

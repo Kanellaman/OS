@@ -10,7 +10,7 @@ OBJS2=../modules/execchild.o ../modules/functions.o
 EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 3 10 1
+ARGS= text.txt 3 10 4
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)
@@ -41,4 +41,4 @@ https://stackoverflow.com/questions/5134891/how-do-i-use-valgrind-to-find-memory
 
 #Clear
 clean:
-	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2)
+	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2) em.txt

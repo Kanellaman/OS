@@ -34,40 +34,26 @@ int main(int argc, char **argv, char **envp)
     for (int i = 0; i < k->requests; i++)
     {
         int j = 0, line = 0, last;
-        x = id % 2;
-        while (1)
+        x = id % 3+i;
+        sem_wait(&(sp[x].mutex));
+        sp[x].num++;
+        if (sp[x].num == 1)
         {
-            sem_wait(&(sp[x].mutex));
-            sp[x].num++;
+            printf("EGW %d\n", id);
             sem_post(&(sp[x].mutex));
+            sem_wait(&(k->next));
 
-            int sum = 0;
-            for (int i = 0; i < k->total_segs; i++)
-                sum += sp[i].num;
-
-            if (sum == k->N)
-                sem_post(&(k->sp2));
-
-            waits(&(k->sp));
-            if (k->segm == -1)
-            {
-                k->segm = x;
-                for (int i = 0; i < k->N - 1; i++)
-                    post(&(k->sp));
-                sem_post(&(k->sp2));
-                break;
-            }
-            else if (k->segm == x)
-            {
-                break;
-            }
-            else
-            {
-                waits(&(k->ssp));
-            }
+            k->segm = x;
+            sem_post(&(k->sp2));
+            sem_wait(&(k->sp1));
+            post(&sp[x]);
         }
-        waits(&(sp[x]));
-        post(&(sp[x]));
+        else
+        {
+            sem_post(&(sp[x].mutex));
+            waits(&sp[x]);
+            post(&sp[x]);
+        }
 
         if (1)
         {
@@ -94,26 +80,11 @@ int main(int argc, char **argv, char **envp)
         }
 
         sem_wait(&(sp[x].mutex));
-        sp[x].num--;
-        if (i == k->requests - 1)
-            k->N--;
         k->total++;
+        sp[x].num--;
+        printf("%d with x=%d\n", sp[x].num, x);
         if (sp[x].num == 0)
-        {
-            k->segm = -1;
-            int sum = 0;
-            for (int i = 0; i < k->total_segs; i++)
-            {
-                sum += sp[i].num;
-            }
-            k->count = sum;
-            for (int i = 0; i < k->total_segs; i++)
-                sp[i].num = 0;
-            waits(&(sp[x]));
             sem_post(&(k->sp2));
-            while (k->ssp.i < 0)
-                post(&(k->ssp));
-        }
         sem_post(&(sp[x].mutex));
     }
     printf("Process id %d %d\n", id, x);

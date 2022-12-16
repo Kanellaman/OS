@@ -1,4 +1,0 @@
-This is the output file of Child process 2
-Time for the request to be submitted -0.000000
-Time for the the answer to come back 0.000000
-<0,0> Manifesto of the Communist Party

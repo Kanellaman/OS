@@ -62,9 +62,9 @@ int check(smphr sp, int segm)
     int sum = 0;
     for (int j = 0; j < segm; j++)
     {
-        sem_wait(&(sp[j].mutex));
+        sem_wait(&(sp[j].mutex1));
         sum += sp[j].i;
-        sem_post(&(sp[j].mutex));
+        sem_post(&(sp[j].mutex1));
     }
     return sum;
 }

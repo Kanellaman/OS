@@ -1,23 +1,6 @@
-Process id 6 0
 Process id 0 0
-Process id 3 0
-VALUE OF SP[X]=0
-Process id 9 0
+Process id 2 0
 Process id 1 1
-Process id 4 1
-VALUE OF SP[X]=0
-Process id 7 1
-Process id 8 2
-Process id 2 2
-VALUE OF SP[X]=0
-Process id 5 2
-Wait returned 22583
-Wait returned 22584
-Wait returned 22586
-Wait returned 22587
-Wait returned 22589
-Wait returned 22590
-Wait returned 22591
-Wait returned 22592
-Wait returned 22585
-Wait returned 22588
+Wait returned 4629
+Wait returned 4631
+Wait returned 4630

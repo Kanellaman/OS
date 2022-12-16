@@ -2,7 +2,7 @@
 CC=gcc
 
 #.cpp files
-Files=main.c ../modules/functions.c ../modules/execchild.c ../modules/my_rand.c
+Files=main.c ../modules/functions.c ../modules/execchild.c
 #.o Files
 OBJS1=main.o ../modules/functions.o
 OBJS2=../modules/execchild.o ../modules/functions.o
@@ -10,7 +10,7 @@ OBJS2=../modules/execchild.o ../modules/functions.o
 EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 10 10 1
+ARGS= text.txt 3 10 1
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)

@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         post(&(k->sp));
         sem_wait(&(k->sp2));
+        // strcpy(str, "\0");
         num = k->segm;
         first = num * k->lines_segm;
         if (num == segm)
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
         post(&(sp[k->segm]));
 
         sem_wait(&(k->sp2));
-        if (k->count == 0)
+        if (k->total == N * requests)
             break;
     }
 

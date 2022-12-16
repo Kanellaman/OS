@@ -34,7 +34,7 @@ int main(int argc, char **argv, char **envp)
     for (int i = 0; i < k->requests; i++)
     {
         int j = 0, line = 0, last;
-        x = id % 3;
+        x = id % 2;
         while (1)
         {
             sem_wait(&(sp[x].mutex));
@@ -52,9 +52,9 @@ int main(int argc, char **argv, char **envp)
             if (k->segm == -1)
             {
                 k->segm = x;
-                sem_post(&(k->sp2));
                 for (int i = 0; i < k->N - 1; i++)
                     post(&(k->sp));
+                sem_post(&(k->sp2));
                 break;
             }
             else if (k->segm == x)
@@ -95,8 +95,8 @@ int main(int argc, char **argv, char **envp)
 
         sem_wait(&(sp[x].mutex));
         sp[x].num--;
-        if (i == k->requests - 1)
-            k->N--;
+        // if (i == k->requests - 1)
+        k->N--;
         k->total++;
         // printf("SP[X=%d] NUM=%d\n", x, sp[x].num);
         if (sp[x].num == 0)
@@ -107,13 +107,11 @@ int main(int argc, char **argv, char **envp)
             for (int i = 0; i < k->total_segs; i++)
             {
                 sum += sp[i].num;
-                sp[i].num = 0;
             }
             k->count = sum;
-            int ff;
+            for (int i = 0; i < k->total_segs; i++)
+                sp[i].num = 0;
             waits(&(sp[x]));
-            // sem_getvalue(&(sp[x].sp), &ff);
-            // printf("VALUE OF SP[X]=%d\n", ff);
             sem_post(&(k->sp2));
             while (k->ssp.i < 0)
                 post(&(k->ssp));

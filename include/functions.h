@@ -30,7 +30,7 @@ struct memory
     int requests;
     int waiting;
     int total, N, count;
-    sem_t sp1, sp2, next;
+    sem_t sp1, sp2, next, mutex;
 };
 
 typedef struct memory *mem;

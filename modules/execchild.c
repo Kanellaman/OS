@@ -92,8 +92,10 @@ int main(int argc, char **argv, char **envp)
             usleep(20000);
         }
 
-        sem_wait(&(sp[x].mutex));
+        sem_wait(&(k->mutex));
         k->total++;
+        sem_post(&(k->mutex));
+        sem_wait(&(sp[x].mutex));
         sp[x].num--;
         if (sp[x].num == 0)
         {

@@ -69,9 +69,6 @@ int main(int argc, char **argv, char **envp)
 
         if (1)
         {
-            GET_TIME(end2);
-            fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
-            fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
             fprintf(fp, "<%d,%d> ", x, line);
             if (k->segm == k->total_segs - 1)
                 last = k->last_line;
@@ -89,19 +86,20 @@ int main(int argc, char **argv, char **envp)
                     fprintf(fp, "%c", str[j]);
                 j++;
             }
+            GET_TIME(end2);
+            fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
+            fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
             usleep(20000);
         }
 
         sem_wait(&(sp[x].mutex));
         k->total++;
         sp[x].num--;
-        printf("%d with x=%d\n", sp[x].num, x);
         if (sp[x].num == 0)
         {
             sem_post(&(k->sp2));
         }
         sem_post(&(sp[x].mutex));
     }
-    printf("Process id %d %d\n", id, x);
     return EXIT_SUCCESS;
 }

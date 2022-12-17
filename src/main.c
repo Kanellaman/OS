@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         GET_TIME(end2);
         strcpy(str, "\0");
-        printf("Segment %d Insert time= %f and exit time= %f\n", k->segm, end1 - start1, end2 - start2);
+        // printf("Segment %d Insert time= %f and exit time= %f\n", k->segm, end1 - start1, end2 - start2);
         k->segm = -1;
     }
 
@@ -119,6 +119,7 @@ int main(int argc, char *argv[])
         perror("shmctl1");
         return 1;
     }
+    
     fclose(fp);
     return EXIT_SUCCESS;
 }

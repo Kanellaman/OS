@@ -1,14 +1,20 @@
 #Compiler
 CC=gcc
 
-#.cpp files
+#.c files
 Files=main.c ../modules/functions.c ../modules/execchild.c
+
 #.o Files
 OBJS1=main.o ../modules/functions.o
 OBJS2=../modules/execchild.o ../modules/functions.o
-#Executable
-EXEC1=exe1
+
+#Executables
+EXEC1=exe
 EXEC2=execchild
+
+#Output file
+OUTPUT= output.txt
+
 #Parameters for run
 ARGS= text.txt 15 100 4
 
@@ -19,27 +25,14 @@ $(EXEC1):$(OBJS1) $(OBJS2)
 
 #Run
 run: $(EXEC1) $(EXEC2)
-	./$(EXEC1) $(ARGS) > em.txt
+	./$(EXEC1) $(ARGS) > $(OUTPUT)
 
-#debug
-debug:
-# $(CC) -o exe segmm.c -lpthread -lrt
-	$(CC) -g3 $(OBJS1) -o $(EXEC1) -lpthread -lrt
-	$(CC) -g3 $(OBJS2) -o $(EXEC2) -lpthread -lrt
-	gdb -q $(EXEC1)
-
-#memory-loss
-# memory:
-#	make
-#	valgrind --leak-check=full -s ./$(EXEC) $(ARGS) $(INPUT)
-#--leak-check=full \
-         --show-leak-kinds=all \
-         --track-origins=yes \
-         --verbose \
-         --log-file=valgrind-out.txt \
-		 ./executable exampleParam1 \
-https://stackoverflow.com/questions/5134891/how-do-i-use-valgrind-to-find-memory-leaks 
+# #debug
+# debug:
+# 	$(CC) -g3 $(OBJS1) -o $(EXEC1) -lpthread -lrt
+# 	$(CC) -g3 $(OBJS2) -o $(EXEC2) -lpthread -lrt
+# 	gdb -q $(EXEC1)
 
 #Clear
 clean:
-	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2) em.txt
+	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2) $(OUTPUT)

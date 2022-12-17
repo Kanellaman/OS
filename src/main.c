@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         init(&sp[i]);
 
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
-    char *newargv[2] = {"yo", NULL};
+    char *newargv[3] = {"execchild", NULL, NULL};
     for (int i = 0; i < N; i++)
     {
         pid = fork();
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
         {
             char c1[8];
             sprintf(c1, "%d", i);
-            newargv[0] = c1;
+            newargv[1] = c1;
             (void)execv("execchild", newargv);
         }
     }

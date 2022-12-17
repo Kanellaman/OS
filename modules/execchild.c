@@ -32,6 +32,7 @@ int main(int argc, char **argv, char **envp)
     smphr sp = (smphr)k + sizeof(struct memory);
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
     int probability = 30, random;
+    int incr = 0;
     for (int i = 0; i < k->requests; i++)
     {
         if (i == 0)
@@ -69,6 +70,7 @@ int main(int argc, char **argv, char **envp)
 
         if (1)
         {
+            line = 0;
             fprintf(fp, "<%d,%d> ", x, line);
             if (k->segm == k->total_segs - 1)
                 last = k->last_line;
@@ -95,10 +97,12 @@ int main(int argc, char **argv, char **envp)
         sem_wait(&(k->mutex));
         k->total++;
         sem_post(&(k->mutex));
+
         sem_wait(&(sp[x].mutex));
         sp[x].num--;
         if (sp[x].num == 0)
         {
+            waits(&(sp[x]));
             sem_post(&(k->sp2));
         }
         sem_post(&(sp[x].mutex));

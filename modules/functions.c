@@ -21,17 +21,6 @@ char *read_file(FILE *fp)
     return str;
 }
 
-int lines_per(int segm, int count)
-{
-    int lines, tmp;
-    lines = count / segm;
-    tmp = count % segm;
-    if (tmp == 0)
-        return count / segm;
-    lines += segm;
-    return lines;
-}
-
 void init(smphr sp)
 {
     sem_init(&(sp->sp), 1, 0);

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     N = strtol(argv[2], NULL, 10);        // Number of child-processes
-    segm = strtol(argv[3], NULL, 10);     // Number of segments
+    segm = strtol(argv[3], NULL, 10);     // Number of lines per segment
     requests = strtol(argv[4], NULL, 10); // Number of requests per child process
     char *file_data;
     for (c = getc(fp); c != EOF; c = getc(fp))
@@ -42,30 +42,30 @@ int main(int argc, char *argv[])
         array[i] = malloc(strlen(kk) * sizeof(char) + 1);
         strcat(array[i], kk);
     }
-
     int shm_id = get_key(0, 0);
     mem k;
     k = (mem)shmat(shm_id, NULL, 0);
-    k->total_segs = segm;
-    k->lines_segm = lines_per(segm, count);
-    k->last_line = k->lines_segm - k->lines_segm * segm % count;
-    sem_init(&(k->sp1), 1, 0);
-    sem_init(&(k->sp2), 1, 0);
-    sem_init(&(k->next), 1, 0);
-    sem_init(&(k->mutex), 1, 1);
-
+    k->last_line = count % segm;
+    k->total_segs = count / segm;
+    if (k->last_line != 0)
+        k->total_segs++;
+    k->lines_segm = segm;
     k->segm = -1;
     k->line = -1;
     k->total = 0;
     k->N = N;
     k->count = 1;
     k->requests = requests;
+    sem_init(&(k->sp1), 1, 0);
+    sem_init(&(k->sp2), 1, 0);
+    sem_init(&(k->next), 1, 0);
+    sem_init(&(k->mutex), 1, 1);
 
     smphr sp = (smphr)k + sizeof(struct memory);
-    for (int i = 0; i < segm; i++)
+    for (int i = 0; i < k->total_segs; i++)
         init(&sp[i]);
 
-    char *str = (char *)sp + segm * sizeof(struct semaphore);
+    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
     char *newargv[3] = {"yo", file_data, NULL};
     for (int i = 0; i < N; i++)
     {
@@ -91,12 +91,15 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         num = k->segm;
         first = num * k->lines_segm;
-        if (num == segm - 1)
+        if (num == k->total_segs - 1)
             last = num * k->lines_segm + k->last_line;
         else
             last = (num + 1) * k->lines_segm;
         for (int i = first; i < last; i++)
+        {
             strcat(str, array[i]);
+        }
+        // str[strlen(str)] = '\0';
         GET_TIME(end1);
         GET_TIME(start2);
         sem_post(&(k->sp1));
@@ -107,7 +110,6 @@ int main(int argc, char *argv[])
         // printf("Segment %d Insert time= %f and exit time= %f\n", k->segm, end1 - start1, end2 - start2);
         k->segm = -1;
     }
-
     for (int j = 0; j < N; j++)
         wait(NULL);
 

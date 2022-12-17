@@ -10,7 +10,7 @@ OBJS2=../modules/execchild.o ../modules/functions.o
 EXEC1=exe1
 EXEC2=execchild
 #Parameters for run
-ARGS= text.txt 10 4 3
+ARGS= text.txt 15 100 4
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)

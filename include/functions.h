@@ -16,7 +16,7 @@
 #define seg 640000
 #define ROWLENGTH 1000
 #define ROWNUMBER 200
-
+#define MY_NULL 0
 struct semaphore
 {
     sem_t sp;

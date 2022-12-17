@@ -4,7 +4,7 @@
 int main(int argc, char **argv, char **envp)
 {
     FILE *fp;
-    int err, retval, id, x, N;
+    int id, x;
     int *seed = malloc(sizeof(int));
     double start1, end1;
     double start2, end2;
@@ -14,24 +14,27 @@ int main(int argc, char **argv, char **envp)
         return EXIT_FAILURE;
     }
     id = atoi(argv[1]);
-    time_t t = time(NULL) + id;
-    *seed = (unsigned int)t;
-    // printf("A random number from %d %d\n", id, x);
-    char *filename = malloc(30 * sizeof(char) + 1);
+
+    // Make sure that every child got a different seed so they wont have the same random numbers
+    time_t t = time(NULL) + id; // Different id for every child process
+    *seed = (unsigned int)t;    // The argument of rand_t
+
+    char *filename = malloc(33 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 8 more for the int id (+1 for the '\0' character)
+    // Build the filename
     strcpy(filename, "../Childrentxts/Child");
     strcat(filename, argv[1]);
     strcat(filename, ".txt");
-    fp = fopen(filename, "w");
-    fprintf(fp, "This is the output file of Child process %d\n", atoi(argv[1]));
+    fp = fopen(filename, "w");                                                     // Open the log file
+    fprintf(fp, "This is the output file of Child process %d\n\n", atoi(argv[1])); // A title for the log file
 
-    int shm_id = get_key();
+    int shm_id = get_key(); // Get the id of the shared memory segment children share
 
     mem k;
-    k = (mem)shmat(shm_id, NULL, 0);
-    smphr sp = (smphr)k + sizeof(struct memory);
-    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
+    k = (mem)shmat(shm_id, NULL, 0);                                   // Attach the shared memory segment
+    smphr sp = (smphr)k + sizeof(struct memory);                       // Get a pointer for the semaphore array which is located after the object 'struct memory'
+    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore); // Get a pointer for the string that stores text segment
 
-    int probability = 30, random;
+    int probability = 40, random;
     for (int i = 0; i < k->requests; i++)
     {
         if (i == 0)

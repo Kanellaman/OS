@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     int count = 1;
     char c;
     int N, requests, segm;
-    int pid, status;
+    int pid;
     double start1, end1, start2, end2;
     FILE *fp;
     if (argc < 3)
@@ -22,27 +22,20 @@ int main(int argc, char *argv[])
     requests = strtol(argv[4], NULL, 10); // Number of requests per child process
     char *file_data;
     for (c = getc(fp); c != EOF; c = getc(fp))
-        if (c == '\n') // Increment count if this character is newline
-            count = count + 1;
-    rewind(fp);
-    fseek(fp, 0, SEEK_END);
-    long file_size = ftell(fp);
-    rewind(fp);
+        if (c == '\n')         // Increment count if this character is newline
+            count = count + 1; // We store to the variable count the number of lines the file has
+    rewind(fp);                // Reset the pointer in case we need to traverse the file later
+
     char **array;
     array = malloc(count * sizeof(char *));
-
-    int num, first, last;
-    size_t size_segm = 0, size_sem = 0; // The bytes stored in the 2D array
-    // which represents the number of bytes the document has
-
     for (int i = 0; i < count; i++)
-    {
-        char *kk = read_file(fp);
-        size_segm += strlen(kk) * sizeof(char) + 1; // Add the bytes of every row
-        array[i] = malloc(strlen(kk) * sizeof(char) + 1);
+    {                                                     // Store every line of the file in the variable array
+        char *kk = read_file(fp);                         // Read line a line of the file
+        array[i] = malloc(strlen(kk) * sizeof(char) + 1); // Store the line into the array
         strcat(array[i], kk);
     }
-    int shm_id = get_key(0, 0);
+
+    int shm_id = get_key();
     mem k;
     k = (mem)shmat(shm_id, NULL, 0);
     k->last_line = count % segm;
@@ -81,7 +74,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    int j = 0;
+    int num, first, last;
     strcpy(str, "\0");
     k->segm = -1;
     while (k->total != N * requests)
@@ -96,10 +89,7 @@ int main(int argc, char *argv[])
         else
             last = (num + 1) * k->lines_segm;
         for (int i = first; i < last; i++)
-        {
             strcat(str, array[i]);
-        }
-        // str[strlen(str)] = '\0';
         GET_TIME(end1);
         GET_TIME(start2);
         sem_post(&(k->sp1));

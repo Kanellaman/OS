@@ -19,9 +19,8 @@
 #define MY_NULL 0
 struct semaphore
 {
-    sem_t sp;
-    sem_t mutex, mutex1;
-    int i, num;
+    sem_t sp, mutex;
+    int num;
 };
 struct memory
 {
@@ -36,11 +35,8 @@ struct memory
 typedef struct memory *mem;
 typedef struct semaphore *smphr;
 
-int get_key(int, int);
+int get_key();
 char *read_file(FILE *fp);
-int lines_per(int segm, int count);
 void init(smphr sp);
 void post(smphr sp);
 void waits(smphr sp);
-int check(smphr sp, int segm);
-void waiting(smphr sp);

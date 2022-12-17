@@ -1,6 +1,6 @@
 #include "../include/functions.h"
 
-int get_key(int i, int size)
+int get_key()
 {
     int shm_id;
     key_t key;

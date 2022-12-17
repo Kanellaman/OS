@@ -25,14 +25,14 @@ int main(int argc, char **argv, char **envp)
     fp = fopen(filename, "w");
     fprintf(fp, "This is the output file of Child process %d\n", atoi(argv[1]));
 
-    int shm_id = get_key(0, 0);
+    int shm_id = get_key();
 
     mem k;
     k = (mem)shmat(shm_id, NULL, 0);
     smphr sp = (smphr)k + sizeof(struct memory);
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
+
     int probability = 30, random;
-    int incr = 0;
     for (int i = 0; i < k->requests; i++)
     {
         if (i == 0)

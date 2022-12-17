@@ -8,19 +8,18 @@ int main(int argc, char **argv, char **envp)
     int *seed = malloc(sizeof(int));
     double start1, end1;
     double start2, end2;
-    if (argc < 2)
+    if (argc < 1)
     {
         perror("Need more arguments");
         return EXIT_FAILURE;
     }
-    N = atoi(argv[0]);
-    id = atoi(argv[1]);
+    id = atoi(argv[0]);
     time_t t = time(NULL) + id;
     *seed = (unsigned int)t;
     // printf("A random number from %d %d\n", id, x);
     char *filename = malloc(30 * sizeof(char) + 1);
     strcpy(filename, "../Childrentxts/Child");
-    strcat(filename, argv[1]);
+    strcat(filename, argv[0]);
     strcat(filename, ".txt");
     fp = fopen(filename, "w");
     fprintf(fp, "This is the output file of Child process %d\n", atoi(argv[1]));

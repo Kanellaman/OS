@@ -25,10 +25,10 @@ struct semaphore
 struct memory
 {
     int total_segs, lines_segm, last_line;
-    int segm, line;
+    int segm;
     int requests;
     int waiting;
-    int total, N, count;
+    int total;
     sem_t sp1, sp2, next, mutex;
 };
 

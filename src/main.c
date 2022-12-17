@@ -44,10 +44,7 @@ int main(int argc, char *argv[])
         k->total_segs++;
     k->lines_segm = segm;
     k->segm = -1;
-    k->line = -1;
     k->total = 0;
-    k->N = N;
-    k->count = 1;
     k->requests = requests;
     sem_init(&(k->sp1), 1, 0);
     sem_init(&(k->sp2), 1, 0);
@@ -59,17 +56,15 @@ int main(int argc, char *argv[])
         init(&sp[i]);
 
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
-    char *newargv[3] = {"yo", file_data, NULL};
+    char *newargv[2] = {"yo", NULL};
     for (int i = 0; i < N; i++)
     {
         pid = fork();
         if (pid == 0)
         {
-            char c1[8], c2[8];
-            sprintf(c1, "%d", N);
+            char c1[8];
+            sprintf(c1, "%d", i);
             newargv[0] = c1;
-            sprintf(c2, "%d", i);
-            newargv[1] = c2;
             (void)execv("execchild", newargv);
         }
     }

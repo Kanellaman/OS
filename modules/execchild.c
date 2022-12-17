@@ -32,7 +32,7 @@ int main(int argc, char **argv, char **envp)
     mem k;
     k = (mem)shmat(shm_id, NULL, 0);                                   // Attach the shared memory segment
     smphr sp = (smphr)k + sizeof(struct memory);                       // Get a pointer for the semaphore array which is located after the object 'struct memory'
-    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore); // Get a pointer for the string that stores text segment
+    char *str = (char *)sp + k->total_segs * sizeof(struct semaphore); // Get a pointer for the string that stores text segment which is located after the array sp of 'k->total_segs' elements
 
     int probability = 40, random;
     for (int i = 0; i < k->requests; i++)

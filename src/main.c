@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     int shm_id = get_key();
     mem k;
-    k = (mem)shmat(shm_id, NULL, 0);
+    k = (mem)shmat(shm_id, NULL, 0); // Attach the shared memory segment
     k->last_line = count % segm;
     k->total_segs = count / segm;
     if (k->last_line != 0)
@@ -51,11 +51,14 @@ int main(int argc, char *argv[])
     sem_init(&(k->next), 1, 0);
     sem_init(&(k->mutex), 1, 1);
 
+    // Get a pointer for the semaphore array which is located after the object 'struct memory'
     smphr sp = (smphr)k + sizeof(struct memory);
     for (int i = 0; i < k->total_segs; i++)
         init(&sp[i]);
 
+    // Get a pointer for the string that stores text segment which is located after the array sp of 'k->total_segs' elements
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore);
+
     char *newargv[3] = {"execchild", NULL, NULL};
     for (int i = 0; i < N; i++)
     {
@@ -70,11 +73,12 @@ int main(int argc, char *argv[])
     }
 
     int num, first, last;
-    strcpy(str, "\0");
-    k->segm = -1;
     while (k->total != N * requests)
     {
-        sem_post(&(k->next));
+        // Clear the contents of variable str so that the new text segment will be stored
+        strcpy(str, "\0");
+
+        sem_post(&(k->next)); // Let a child to choose a segment
         GET_TIME(start1);
         sem_wait(&(k->sp2));
         num = k->segm;
@@ -91,20 +95,18 @@ int main(int argc, char *argv[])
 
         sem_wait(&(k->sp2));
         GET_TIME(end2);
-        strcpy(str, "\0");
         // printf("Segment %d Insert time= %f and exit time= %f\n", k->segm, end1 - start1, end2 - start2);
-        k->segm = -1;
     }
     for (int j = 0; j < N; j++)
         wait(NULL);
 
     if (shmdt(k) == -1)
-    {
+    { // Detach shared memory segment
         perror("shmdt");
         return 1;
     }
     if (shmctl(shm_id, IPC_RMID, NULL) == -1)
-    {
+    { // Delete shared memory segment
         perror("shmctl1");
         return 1;
     }

@@ -25,15 +25,12 @@ struct semaphore
 struct memory
 {
     int total_segs, lines_segm, last_line;
-    int segm;
-    int requests;
-    int waiting;
-    int total;
+    int segm, requests, total;
     sem_t sp1, sp2, next, mutex;
 };
 
-typedef struct memory *mem;
 typedef struct semaphore *smphr;
+typedef struct memory *mem;
 
 int get_key();
 char *read_file(FILE *fp);

@@ -19,7 +19,7 @@ int main(int argc, char **argv, char **envp)
     time_t t = time(NULL) + id; // Different id for every child process
     *seed = (unsigned int)t;    // The argument of rand_t
 
-    char *filename = malloc(33 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 8 more for the int id (+1 for the '\0' character)
+    char *filename = malloc(29 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 4 more for the int id (+1 for the '\0' character)
     // Build the filename
     strcpy(filename, "../Childrentxts/Child");
     strcat(filename, argv[1]);
@@ -30,7 +30,12 @@ int main(int argc, char **argv, char **envp)
     int shm_id = get_key(); // Get the id of the shared memory segment children share
 
     mem k;
-    k = (mem)shmat(shm_id, NULL, 0);                                   // Attach the shared memory segment
+    k = (mem)shmat(shm_id, NULL, 0); // Attach the shared memory segment
+    if (k == (mem)NULL)
+    {
+        perror("Failed to attach shared memory segment");
+        return EXIT_FAILURE;
+    }
     smphr sp = (smphr)k + sizeof(struct memory);                       // Get a pointer for the semaphore array which is located after the object 'struct memory'
     char *str = (char *)sp + k->total_segs * sizeof(struct semaphore); // Get a pointer for the string that stores text segment which is located after the array sp of 'k->total_segs' elements
 
@@ -45,8 +50,13 @@ int main(int argc, char **argv, char **envp)
             if (random < probability)
                 x = rand_r(seed) % k->total_segs;
         }
+        int line;
+        if (x == k->total_segs - 1 && k->last_line != 0)
+            line = rand_r(seed) % k->last_line;
+        else
+            line = rand_r(seed) % k->lines_segm;
         GET_TIME(start1);
-        int j = 0, line = 0, last;
+
         sem_wait(&(sp[x].mutex));
         sp[x].num++;
         if (sp[x].num == 1)
@@ -59,7 +69,6 @@ int main(int argc, char **argv, char **envp)
             GET_TIME(end1);
             GET_TIME(start2);
             sem_wait(&(k->sp1));
-            post(&sp[x]);
         }
         else
         {
@@ -67,14 +76,14 @@ int main(int argc, char **argv, char **envp)
             GET_TIME(end1);
             GET_TIME(start2);
             waits(&sp[x]);
-            post(&sp[x]);
         }
+        post(&sp[x]);
 
         if (1)
         {
-            line = 0;
             fprintf(fp, "<%d,%d> ", x, line);
-            if (k->segm == k->total_segs - 1)
+            int j = 0, last;
+            if (x == k->total_segs - 1 && k->last_line != 0)
                 last = k->last_line;
             else
                 last = k->lines_segm;

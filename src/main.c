@@ -38,6 +38,11 @@ int main(int argc, char *argv[])
     int shm_id = get_key();
     mem k;
     k = (mem)shmat(shm_id, NULL, 0); // Attach the shared memory segment
+    if (k == (mem)NULL)
+    {
+        perror("Failed to attach shared memory segment");
+        return EXIT_FAILURE;
+    }
     k->last_line = count % segm;
     k->total_segs = count / segm;
     if (k->last_line != 0)
@@ -65,7 +70,7 @@ int main(int argc, char *argv[])
         pid = fork();
         if (pid == 0)
         {
-            char c1[8];
+            char c1[4];
             sprintf(c1, "%d", i);
             newargv[1] = c1;
             (void)execv("execchild", newargv);
@@ -83,7 +88,7 @@ int main(int argc, char *argv[])
         sem_wait(&(k->sp2));
         num = k->segm;
         first = num * k->lines_segm;
-        if (num == k->total_segs - 1)
+        if (num == k->total_segs - 1 && k->last_line != 0)
             last = num * k->lines_segm + k->last_line;
         else
             last = (num + 1) * k->lines_segm;

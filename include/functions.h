@@ -37,3 +37,4 @@ char *read_file(FILE *fp);
 void init(smphr sp);
 void post(smphr sp);
 void waits(smphr sp);
+void destroy(smphr sp);

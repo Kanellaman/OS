@@ -13,14 +13,14 @@ int main(int argc, char **argv, char **envp)
         perror("Need more arguments");
         return EXIT_FAILURE;
     }
-    id = atoi(argv[1]);
+    id = atoi(argv[1]); // Second argument given is the ID og the child process
 
     // Make sure that every child got a different seed so they wont have the same random numbers
     time_t t = time(NULL) + id; // Different id for every child process
     *seed = (unsigned int)t;    // The argument of rand_t
 
-    char *filename = malloc(29 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 4 more for the int id (+1 for the '\0' character)
-    // Build the filename
+    char *filename = malloc(36 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 10 more for the int id (+1 for the '\0' character)
+    // Build the filename for the childs' file log
     strcpy(filename, "../Childrentxts/Child");
     strcat(filename, argv[1]);
     strcat(filename, ".txt");
@@ -42,81 +42,83 @@ int main(int argc, char **argv, char **envp)
     int probability = 40, random;
     for (int i = 0; i < k->requests; i++)
     {
+        // Get the segment and the line you will get
         if (i == 0)
-            x = rand_r(seed) % k->total_segs;
+            x = rand_r(seed) % k->total_segs; // For the first request get completely randomly the segment
         else
-        { // Choose another segment to get a line with probability of 30%
+        { // Choose another segment to get a line with probability of 40%
             random = rand_r(seed) % 100;
             if (random < probability)
                 x = rand_r(seed) % k->total_segs;
         }
         int line;
-        if (x == k->total_segs - 1 && k->last_line != 0)
+        // Depending on the segment you get, get also a line
+        if (x == k->total_segs - 1 && k->last_line != 0) // If x is the last segment we have to check if it has less lines than the other segments
             line = rand_r(seed) % k->last_line;
         else
             line = rand_r(seed) % k->lines_segm;
-        GET_TIME(start1);
+        GET_TIME(start1); // Time that the request is ready and is waiting to be submitted
 
-        sem_wait(&(sp[x].mutex));
-        sp[x].num++;
-        if (sp[x].num == 1)
+        sem_wait(&(sp[x].mutex)); // Protect the variable sp[x].num!!
+        sp[x].num++;              // Add the counter sp[x].num which indicates how many child processes need the segment x!
+        if (sp[x].num == 1)       // If you are the first process asking for this segment...
         {
-            sem_post(&(sp[x].mutex));
-            sem_wait(&(k->next));
+            sem_post(&(sp[x].mutex)); // No need to protect sp[x].num anymore
+            sem_wait(&(k->next));     // ...wait with the other "firsts" who ask for a segment
 
             k->segm = x;
             sem_post(&(k->sp2));
-            GET_TIME(end1);
-            GET_TIME(start2);
-            sem_wait(&(k->sp1));
+            GET_TIME(end1);      // Request submitted
+            GET_TIME(start2);    // Start waiting for the mother proceess to load the segment
+            sem_wait(&(k->sp1)); // Wait for the segment to be loaded to the shared memory
         }
-        else
+        else // If you are not the first process asking for this segment...
         {
-            sem_post(&(sp[x].mutex));
-            GET_TIME(end1);
-            GET_TIME(start2);
-            waits(&sp[x]);
+            sem_post(&(sp[x].mutex)); // No need to protect sp[x].num anymore
+            GET_TIME(end1);           // Request submitted
+            GET_TIME(start2);         // Start waiting for the mother proceess to load the segment
+            waits(&sp[x]);            //...wait for the first child process or another child process like you who asked the same segment as you to tell you when the segment is ready!
         }
-        post(&sp[x]);
+        GET_TIME(end2); // Time that mother process has loaded the segment
+        post(&sp[x]);   // Give access to the child process waiting for the same segment (every child process which is being freed is giving access to the next one waiting etc...)
 
         if (1)
         {
             fprintf(fp, "<%d,%d> ", x, line);
             int j = 0, last;
-            if (x == k->total_segs - 1 && k->last_line != 0)
+            if (x == k->total_segs - 1 && k->last_line != 0) // If x is the last segment we have to check if it has less lines than the other segments
                 last = k->last_line;
             else
                 last = k->lines_segm;
             for (int i = 0; i < last; ++i)
-            {
+            { // Traverse every line of the string str till we get the line we want
                 while (str[j] != '\n')
                 {
-                    if (i == line)
+                    if (i == line) // If you find the line you have been looking for print its contents
                         fprintf(fp, "%c", str[j]);
                     j++;
                 }
-                if (i == line)
+                if (i == line) // If you find the line you have been looking for print its last character too which will be '\n'
                     fprintf(fp, "%c", str[j]);
                 j++;
             }
-            GET_TIME(end2);
             fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
-            fprintf(fp, "Time for the the answer to come back %f\n", end2 - start2);
-            usleep(20000);
+            fprintf(fp, "Time for the answer to come back %f\n", end2 - start2);
         }
 
-        sem_wait(&(k->mutex));
-        k->total++;
-        sem_post(&(k->mutex));
+        sem_wait(&(k->mutex)); // Protect variable k->total!!
+        k->total++;            // This the counter of the requests that have been served and is used for mother process to quit serving more
+        sem_post(&(k->mutex)); // No need to protect k->total anymore
 
-        sem_wait(&(sp[x].mutex));
-        sp[x].num--;
-        if (sp[x].num == 0)
+        sem_wait(&(sp[x].mutex)); // Protect the variable sp[x].num!!
+        sp[x].num--;              // Decrease the counter by 1 as the child process does not need the segment x no more
+        if (sp[x].num == 0)       // If there is no other child process that needs x segment....
         {
-            waits(&(sp[x]));
-            sem_post(&(k->sp2));
+            waits(&(sp[x]));     // Close the "door" for the next process who wants x segment (1 is always open when x is already loaded)
+            sem_post(&(k->sp2)); // Give signal to mother process to serve an other request
         }
-        sem_post(&(sp[x].mutex));
+        sem_post(&(sp[x].mutex)); // No need to protect sp[x].num anymore
+        usleep(20000);
     }
     return EXIT_SUCCESS;
 }

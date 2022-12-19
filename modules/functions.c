@@ -37,3 +37,9 @@ void waits(smphr sp)
 {
     sem_wait(&(sp->sp));
 }
+
+void destroy(smphr sp)
+{
+    sem_destroy(&(sp->mutex));
+    sem_destroy(&(sp->sp));
+}

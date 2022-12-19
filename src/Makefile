@@ -16,7 +16,7 @@ EXEC2=execchild
 OUTPUT= output.txt
 
 #Parameters for run
-ARGS= text.txt 15 100 4
+ARGS= text.txt 10 100 1000
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)
@@ -27,12 +27,6 @@ $(EXEC1):$(OBJS1) $(OBJS2)
 run: $(EXEC1) $(EXEC2)
 	./$(EXEC1) $(ARGS) > $(OUTPUT)
 
-# #debug
-# debug:
-# 	$(CC) -g3 $(OBJS1) -o $(EXEC1) -lpthread -lrt
-# 	$(CC) -g3 $(OBJS2) -o $(EXEC2) -lpthread -lrt
-# 	gdb -q $(EXEC1)
-
 #Clear
 clean:
-	rm -f $(OBJS1) $(EXEC1) $(EXEC2) $(OBJS2) $(OUTPUT)
+	rm -f $(EXEC1) $(OBJS1) $(EXEC2) $(OBJS2) $(OUTPUT)

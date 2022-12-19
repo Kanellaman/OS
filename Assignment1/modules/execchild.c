@@ -21,7 +21,7 @@ int main(int argc, char **argv, char **envp)
 
     char *filename = malloc(36 * sizeof(char) + 1); // We allocate 21 bytes for "../Childrentxts/Child",4 for ".txt" and 10 more for the int id (+1 for the '\0' character)
     // Build the filename for the childs' file log
-    strcpy(filename, "../Childrentxts/Child");
+    strcpy(filename, "../Childrentxts/Child"); // Be aware that in order for the program to work the folder Childrentxt must already exists!
     strcat(filename, argv[1]);
     strcat(filename, ".txt");
     fp = fopen(filename, "w");                                                     // Open the log file

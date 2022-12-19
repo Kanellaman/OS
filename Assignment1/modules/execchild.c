@@ -120,5 +120,11 @@ int main(int argc, char **argv, char **envp)
         sem_post(&(sp[x].mutex)); // No need to protect sp[x].num anymore
         usleep(20000);
     }
+    free(filename);
+    if (shmdt(k) == -1)
+    { // Detach shared memory segment
+        perror("shmdt");
+        return 1;
+    }
     return EXIT_SUCCESS;
 }

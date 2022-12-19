@@ -16,7 +16,7 @@ EXEC2=execchild
 OUTPUT= output.txt
 
 #Parameters for run
-ARGS= text.txt 10 100 1000
+ARGS= text.txt 10 100 10
 
 #Create executable
 $(EXEC1):$(OBJS1) $(OBJS2)

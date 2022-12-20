@@ -5,18 +5,13 @@
 #include <semaphore.h>
 #include <unistd.h>
 #include <sys/shm.h>
-#include <time.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/ipc.h>
-#include <sys/mman.h>
-#define SEGMENTSIZE 1024
+#include "../include/timer.h"
+
 #define SEGMENTPERM 0666
-#define seg 640000
-#define ROWLENGTH 1000
-#define ROWNUMBER 200
-#define MY_NULL 0
+#define seg 64000
+#define ROWLENGTH 1000 // Maximum length of line is 1000 characters (No line in text.txt has more characters)
+
 struct semaphore
 {
     sem_t sp, mutex;

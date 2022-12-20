@@ -1,5 +1,4 @@
 #include "../include/functions.h"
-#include "../include/timer.h"
 
 int main(int argc, char **argv, char **envp)
 {
@@ -121,6 +120,7 @@ int main(int argc, char **argv, char **envp)
         usleep(20000);
     }
     free(filename);
+    free(seed);
     if (shmdt(k) == -1)
     { // Detach shared memory segment
         perror("shmdt");

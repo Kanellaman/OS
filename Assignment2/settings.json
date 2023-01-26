@@ -1,0 +1,14 @@
+{
+    "files.exclude": {
+        "**xv6-project-2022/kernel/*.d": true,
+        "**xv6-project-2022/kernel/*.o": true,
+        "**xv6-project-2022/user/*.o": true,
+        "**xv6-project-2022/user/*.d": true,
+        "**xv6-project-2022/kernel/*.S": true,
+        "**xv6-project-2022/kernel/*.asm": true,
+        "**xv6-project-2022/kernel/*.sym": true,
+        "**xv6-project-2022/user/*.sym": true,
+        "**xv6-project-2022/user/*.asm": true
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}

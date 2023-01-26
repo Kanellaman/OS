@@ -104,6 +104,7 @@ int main(int argc, char **argv, char **envp)
             fprintf(fp, "Time for the request to be submitted %f\n", end1 - start1);
             fprintf(fp, "Time for the answer to come back %f\n", end2 - start2);
         }
+        usleep(20000);
 
         sem_wait(&(k->mutex)); // Protect variable k->total!!
         k->total++;            // This the counter of the requests that have been served and is used for mother process to quit serving more
@@ -117,7 +118,6 @@ int main(int argc, char **argv, char **envp)
             sem_post(&(k->sp2)); // Give signal to mother process to serve an other request
         }
         sem_post(&(sp[x].mutex)); // No need to protect sp[x].num anymore
-        usleep(20000);
     }
     free(filename);
     free(seed);

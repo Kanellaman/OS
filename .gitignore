@@ -1,0 +1,13 @@
+# Ignoring ALL files (but not Directories)
+*
+!*/
+# Except the following files
+!*.c
+!*.h
+!*.mk
+!Makefile
+!.gitignore
+!README.md
+!*.txt
+!*.pdf
+!*.so

@@ -33,5 +33,3 @@ The code functions as follows:
 ## Usage
 
 To use this code, follow the instructions provided in the course materials or the assignment guidelines. Ensure that you have the necessary input files and compile the code before running it.
-
-## Additional Notes
